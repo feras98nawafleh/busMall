@@ -11,6 +11,9 @@ let rightImageIndex;
 let middleImageIndex;
 let leftImageIndex;
 
+var Items = [];
+let namesArr = [];
+
 function Item (name, src, id) {
   this.name = name;
   this.source = src;
@@ -18,8 +21,10 @@ function Item (name, src, id) {
   this.shown = 0;
   this.clicked = 0;
   Items.push(this);
+  namesArr.push(this.name);
 }
-var Items = [];
+console.log(namesArr);
+
 
 new Item('bag', 'images/bag.jpg', 0);
 new Item('banana', 'images/banana.jpg', 1);
@@ -43,30 +48,47 @@ new Item('wine-glass', 'images/wine-glass.jpg', 18);
 
 
 function getRandomIndex() {
-    return Math.floor(Math.random() * Items.length);
+  return Math.floor(Math.random() * Items.length);
 }
 
 function renderPhotos() {
-    //giving each column it's index to render 
+  let shownPrevious = [];
     rightImageIndex = getRandomIndex();
+      while(shownPrevious.includes(rightImageIndex)) {
+        rightImageIndex = getRandomIndex();
+        shownPrevious = [];
+        shownPrevious[rightImageIndex];
+    }
+
+  middleImageIndex = getRandomIndex();
+  if(middleImageIndex === rightImageIndex) {
     middleImageIndex = getRandomIndex();
-    if(middleImageIndex === rightImageIndex) {
+    while(shownPrevious.includes(middleImageIndex)) {
       middleImageIndex = getRandomIndex();
+      shownPrevious = [];
+      shownPrevious[rightImageIndex, middleImageIndex];
     }
+  }
+
+  leftImageIndex = getRandomIndex();
+  while(leftImageIndex === middleImageIndex || leftImageIndex === rightImageIndex) {
     leftImageIndex = getRandomIndex();
-    if(leftImageIndex === middleImageIndex || leftImageIndex === rightImageIndex) {
-      leftImageIndex = getRandomIndex();
-    }
+  }
+  while(shownPrevious.includes(leftImageIndex)) {
+    leftImageIndex = getRandomIndex();
+    shownPrevious = [];
+    shownPrevious[rightImageIndex, middleImageIndex, leftImageIndex];
+  }
 
-    rightImage.src = Items[rightImageIndex].source;
-    Items[rightImageIndex].shown++;
-    middleImage.src = Items[middleImageIndex].source;
-    Items[middleImageIndex].shown++;
-    leftImage.src = Items[leftImageIndex].source;
-    Items[leftImageIndex].shown++;
+  rightImage.src = Items[rightImageIndex].source;
+  Items[rightImageIndex].shown++;
+  middleImage.src = Items[middleImageIndex].source;
+  Items[middleImageIndex].shown++;
+  leftImage.src = Items[leftImageIndex].source;
+  Items[leftImageIndex].shown++;
+
 }
-renderPhotos();
-
+renderPhotos(); 
 photosSection.addEventListener('click', handleClick);
 rightImage.addEventListener('click',handleClick);
 middleImage.addEventListener('click', handleClick);
@@ -81,6 +103,8 @@ function showResults() {
     listItem.textContent=`${Items[i].name} has ${Items[i].clicked} votes and was shown ${Items[i].shown} times`
   }
 }
+let votesArr = [];
+let shownArr = [];
 
 function handleClick(e) {
   if (userAttempts < maxAttempts) {
@@ -102,7 +126,95 @@ function handleClick(e) {
     rightImage.removeEventListener('click',handleClick);
     middleImage.removeEventListener('click', handleClick)
     leftImage.removeEventListener('click',handleClick);
-  }
-}
+    }
 
+
+    for (let i = 0; i < Items.length; i++) {
+      console.log(Items[i].clicked);
+      votesArr.push(Items[i].clicked);
+      shownArr.push(Items[i].shown);
+    }
+    console.log(votesArr);
+
+
+
+    photos.removeEventListener('click', handleClick);
+
+    showChart();
+    userAttempts++;
+
+  }
+  function showChart() {
+
+    const data = {
+      labels: namesArr,
+      datasets: [{
+        label: 'Votes',
+        data: votesArr,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(255, 205, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(201, 203, 207, 0.2)'
+        ],
+        borderColor: [
+          'rgb(255, 99, 132)',
+          'rgb(255, 159, 64)',
+          'rgb(255, 205, 86)',
+          'rgb(75, 192, 192)',
+          'rgb(54, 162, 235)',
+          'rgb(153, 102, 255)',
+          'rgb(201, 203, 207)'
+        ],
+        borderWidth: 1
+      },
+      {
+        label: 'Shown',
+        data: shownArr,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(255, 205, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(201, 203, 207, 0.2)'
+        ],
+        borderColor: [
+          'rgb(255, 99, 132)',
+          'rgb(255, 159, 64)',
+          'rgb(255, 205, 86)',
+          'rgb(75, 192, 192)',
+          'rgb(54, 162, 235)',
+          'rgb(153, 102, 255)',
+          'rgb(201, 203, 207)'
+        ],
+        borderWidth: 1
+      }
+    
+    ]
+    };
+  
+    const config = {
+      type: 'bar',
+      data: data,
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      },
+    };
+  
+  
+    var myChart = new Chart(
+      document.getElementById('myChart'),
+      config
+    );
+  
+  }
 
