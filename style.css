@@ -5,15 +5,31 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
   
-img {
+/* img {
     max-width: 200px;
     max-height: 200px;
-}
-.photos {
+} */
+
+#photos {
     display: flex;
     justify-content: space-between;
+    background-color: rgb(50, 50, 218);
 }
 
-/* ul {
+#photos img {
+    width: 30%;
+}
 
-} */
+ul {
+    list-style: none;
+}
+
+#hidden {
+    display: none;
+}
+
+#visible {
+    background-color: rgb(194, 70, 70);
+    padding: 15px 30px;
+    border-radius: 50px;
+}
