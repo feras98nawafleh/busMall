@@ -1,0 +1,19 @@
+* {
+    padding: 10px 20px;
+    margin: 0;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+  
+img {
+    max-width: 200px;
+    max-height: 200px;
+}
+.photos {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ul {
+
+} */
