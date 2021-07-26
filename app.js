@@ -1,7 +1,7 @@
 'use strict';
 
 var userAttempts = 0;
-var maxAttemps = 25;
+var maxAttempts = 25;
 let rightImage= document.getElementById('right');
 let middleImage= document.getElementById('middle');
 let leftImage= document.getElementById('left');
@@ -43,6 +43,7 @@ function getRandomIndex() {
 }
 
 function renderPhotos() {
+    //array to make sure no photo is repeated bu using array.includes() method
     let indexes = [];
     //giving each column it's index to render 
     rightImageIndex = getRandomIndex();
@@ -59,13 +60,52 @@ function renderPhotos() {
     } while(indexes.includes(middleImageIndex));
 
     rightImage.src = Items[rightImageIndex].src;
+    Items[rightImageIndex].shown++;
     middleImage.src = Items[middleImageIndex].src;
+    Items[middleImageIndex].shown++;
     leftImage.src = Items[leftImageIndex].src;
-
-    console.log(rightImageIndex, middleImageIndex, leftImageIndex);
+    Items[leftImageIndex].shown++;
 }
 
 renderPhotos();
 
+rightImage.addEventListener('click',handleClick);
+middleImage.addEventListener('click', handleClick);
+leftImage.addEventListener('click',handleClick);
+
+function handleClick(e) {
+  //increment user's attempts by 1 each time the user clicks an image
+  userAttempts++;
+
+  if (userAttempts<maxAttempts) {
+    if(e.target.id === 'right') {
+      Items[rightImageIndex].clicked++;
+    } else if(e.target.id === 'middle') {
+      Items[middleImageIndex].clicked++;
+    } else if (e.target.id === 'left') {
+      Items[leftImageIndex].clicked++;
+    }
+    //display new 3 images
+    renderTwoImages();
+  } else {
+    Items.sort(( a , b) => {
+      if(a.votes > b.votes) return 1;
+      if(a.votes < b.votes) return -1;
+      return 0;
+    });
+    //show results
+    let scoreList= document.getElementById('score-list');
+    for (let i = 0; i < Items.length; i++) {
+      let listItem = document.createElement('li');
+      scoreList.appendChild(listItem);
+      listItem.textContent=`${Items[i].name} has ${Items[i].clicked} votes and was shown ${Items[i].shown} times`
+    }
+
+    rightImage.removeEventListener('click',handleClick);
+    middleImage.removeEventListener('click', handleClick)
+    leftImage.removeEventListener('click',handleClick);
+  }
+  
+}
 
 
