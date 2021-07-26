@@ -2,14 +2,18 @@
 
 var userAttempts = 0;
 var maxAttempts = 25;
-let rightImage= document.getElementById('right');
-let middleImage= document.getElementById('middle');
-let leftImage= document.getElementById('left');
-let rightImageIndex, middleImageIndex, leftImageIndex;
+let photosSection = document.getElementById('photos');
+let rightImage = document.getElementById('right');
+let middleImage = document.getElementById('middle');
+let leftImage = document.getElementById('left');
+let displayResultButton = document.getElementById('hidden');
+let rightImageIndex;
+let middleImageIndex;
+let leftImageIndex;
 
 function Item (name, src, id) {
   this.name = name;
-  this.src = src;
+  this.source = src;
   this.id = id;
   this.shown = 0;
   this.clicked = 0;
@@ -31,7 +35,7 @@ new Item('pen', 'images/pen.jpg', 10);
 new Item('pet-sweep', 'images/pet-sweep.jpg', 11);
 new Item('scissors', 'images/scissors.jpg', 12);
 new Item('shark', 'images/shark.jpg', 13);
-new Item('sweep', 'images/sweep.jpg', 14);
+new Item('sweep', 'images/sweep.png', 14);
 new Item('tauntaun', 'images/tauntaun.jpg', 15);
 new Item('unicorn', 'images/unicorn.jpg', 16);
 new Item('water-can', 'images/water-can.jpg', 17);
@@ -43,42 +47,48 @@ function getRandomIndex() {
 }
 
 function renderPhotos() {
-    //array to make sure no photo is repeated bu using array.includes() method
-    let indexes = [];
     //giving each column it's index to render 
     rightImageIndex = getRandomIndex();
-    indexes.push(rightImageIndex);
-
-    do{
     middleImageIndex = getRandomIndex();
-    indexes.push(middleImageIndex);
-    } while(indexes.includes(middleImageIndex));
-
-    do {
+    if(middleImageIndex === rightImageIndex) {
+      middleImageIndex = getRandomIndex();
+    }
     leftImageIndex = getRandomIndex();
-    indexes.push(leftImageIndex);
-    } while(indexes.includes(middleImageIndex));
+    if(leftImageIndex === middleImageIndex || leftImageIndex === rightImageIndex) {
+      leftImageIndex = getRandomIndex();
+    }
 
-    rightImage.src = Items[rightImageIndex].src;
+    rightImage.src = Items[rightImageIndex].source;
     Items[rightImageIndex].shown++;
-    middleImage.src = Items[middleImageIndex].src;
+    middleImage.src = Items[middleImageIndex].source;
     Items[middleImageIndex].shown++;
-    leftImage.src = Items[leftImageIndex].src;
+    leftImage.src = Items[leftImageIndex].source;
     Items[leftImageIndex].shown++;
 }
-
 renderPhotos();
 
+photosSection.addEventListener('click', handleClick);
 rightImage.addEventListener('click',handleClick);
 middleImage.addEventListener('click', handleClick);
 leftImage.addEventListener('click',handleClick);
+displayResultButton.addEventListener('click', showResults);
+
+function showResults() {
+  let scoreList = document.getElementById('score-list');
+  for (let i = 0; i < Items.length; i++) {
+    let listItem = document.createElement('li');
+    scoreList.appendChild(listItem);
+    listItem.textContent=`${Items[i].name} has ${Items[i].clicked} votes and was shown ${Items[i].shown} times`
+  }
+}
 
 function handleClick(e) {
-  //increment user's attempts by 1 each time the user clicks an image
-  userAttempts++;
-
-  if (userAttempts<maxAttempts) {
-    if(e.target.id === 'right') {
+  if (userAttempts < maxAttempts) {
+    //increment user's attempts by 1 each time the user clicks an image
+    userAttempts++;
+    if(e.target.id === 'photos') {
+      userAttempts--;
+    } else if(e.target.id === 'right') {
       Items[rightImageIndex].clicked++;
     } else if(e.target.id === 'middle') {
       Items[middleImageIndex].clicked++;
@@ -86,26 +96,13 @@ function handleClick(e) {
       Items[leftImageIndex].clicked++;
     }
     //display new 3 images
-    renderTwoImages();
+    renderPhotos();
   } else {
-    Items.sort(( a , b) => {
-      if(a.votes > b.votes) return 1;
-      if(a.votes < b.votes) return -1;
-      return 0;
-    });
-    //show results
-    let scoreList= document.getElementById('score-list');
-    for (let i = 0; i < Items.length; i++) {
-      let listItem = document.createElement('li');
-      scoreList.appendChild(listItem);
-      listItem.textContent=`${Items[i].name} has ${Items[i].clicked} votes and was shown ${Items[i].shown} times`
-    }
-
+    displayResultButton.id = 'visible';
     rightImage.removeEventListener('click',handleClick);
     middleImage.removeEventListener('click', handleClick)
     leftImage.removeEventListener('click',handleClick);
   }
-  
 }
 
 
