@@ -14,14 +14,15 @@ let leftImageIndex;
 var Items = [];
 let namesArr = [];
 
-function Item (name, src, id) {
-  this.name = name;
-  this.source = src;
-  this.id = id;
-  this.shown = 0;
-  this.clicked = 0;
-  Items.push(this);
-  namesArr.push(this.name);
+  function Item (name, src, id) {
+    this.name = name;
+    this.source = src;
+    this.id = id;
+    this.shown = 0;
+    this.clicked = 0;
+    Items.push(this);
+    namesArr.push(this.name);
+    addToStorage();
 }
 new Item('bag', 'images/bag.jpg', 0);
 new Item('banana', 'images/banana.jpg', 1);
@@ -42,6 +43,20 @@ new Item('tauntaun', 'images/tauntaun.jpg', 15);
 new Item('unicorn', 'images/unicorn.jpg', 16);
 new Item('water-can', 'images/water-can.jpg', 17);
 new Item('wine-glass', 'images/wine-glass.jpg', 18);
+
+function addToStorage() {
+  let stringItemsArr = JSON.stringify(Items);
+  localStorage.setItem('Items', stringItemsArr);
+}
+
+function updateStorage() {
+  let data = localStorage.getItem('Items');
+  let parsedItemsArr = JSON.parse(data);
+  for (let i = 0; i < parsedItemsArr.length; i++) {
+    new Item(parsedItemsArr[i].name,parsedItemsArr[i].src,parsedItemsArr[i].id,parsedItemsArr[i].shown,parsedItemsArr[i].clicked);
+  }
+  console.log(Items);
+}
 
 function getRandomIndex() {
   return Math.floor(Math.random() * Items.length);
@@ -189,5 +204,5 @@ function showChart() {
     document.getElementById('myChart'),
     config
   );
-
+updateStorage();
 }
