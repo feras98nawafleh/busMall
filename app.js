@@ -98,22 +98,10 @@ function userClick(event) {
       votesArr.push(Item.Items[i].clicked);
       shownArr.push(Item.Items[i].shown);
     }
-
     displayResultButton.id = 'visible';
     displayResultButton.addEventListener('click', results);
-    // btn.setAttribute('type', 'submit');
-    // btn.setAttribute('value', 'View Results');
-    // btn.id = 'done';
-
-    // remove event listener:
-    
-   
   }
- 
-  
 }
-
-let btn;
 
 function results() {
   let list = document.getElementById('score-list');
