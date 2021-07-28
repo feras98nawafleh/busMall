@@ -1,5 +1,9 @@
 'use strict';
 
+function getRandomIndex() {
+  return Math.floor(Math.random() * Item.Items.length);
+}
+
 var userAttempts = 0;
 var maxAttempts = 25;
 let photosSection = document.getElementById('photos');
@@ -7,147 +11,152 @@ let rightImage = document.getElementById('right');
 let middleImage = document.getElementById('middle');
 let leftImage = document.getElementById('left');
 let displayResultButton = document.getElementById('hidden');
-let rightImageIndex;
-let middleImageIndex;
 let leftImageIndex;
+let middleImageIndex;
+let rightImageIndex;
 
-var Items = [];
-let namesArr = [];
-
-  function Item (name, src, id) {
-    this.name = name;
-    this.source = src;
-    this.id = id;
-    this.shown = 0;
-    this.clicked = 0;
-    Items.push(this);
-    namesArr.push(this.name);
-    addToStorage();
+function Item(name, src) {
+  this.name = name;
+  this.src = src;
+  this.clicked = 0;
+  this.shown = 0;
+  Item.Items.push(this);
+  namesArr.push(this.name);
 }
-new Item('bag', 'images/bag.jpg', 0);
-new Item('banana', 'images/banana.jpg', 1);
-new Item('bathroom', 'images/bathroom.jpg', 2);
-new Item('boots', 'images/boots.jpg', 3);
-new Item('breakfast', 'images/breakfast.jpg', 4);
-new Item('bubblegum', 'images/bubblegum.jpg', 5);
-new Item('chair', 'images/chair.jpg', 6);
-new Item('cthulhu', 'images/cthulhu.jpg', 7);
-new Item('dog-duck', 'images/dog-duck.jpg', 8);
-new Item('dragon', 'images/dragon.jpg', 9);
-new Item('pen', 'images/pen.jpg', 10);
-new Item('pet-sweep', 'images/pet-sweep.jpg', 11);
-new Item('scissors', 'images/scissors.jpg', 12);
-new Item('shark', 'images/shark.jpg', 13);
-new Item('sweep', 'images/sweep.png', 14);
-new Item('tauntaun', 'images/tauntaun.jpg', 15);
-new Item('unicorn', 'images/unicorn.jpg', 16);
-new Item('water-can', 'images/water-can.jpg', 17);
-new Item('wine-glass', 'images/wine-glass.jpg', 18);
+Item.Items = [];
 
-function addToStorage() {
-  let stringItemsArr = JSON.stringify(Items);
-  localStorage.setItem('Items', stringItemsArr);
+let namesArr = [];
+let votesArr = [];
+let shownArr = [];
+let shownBefore = [];
+
+new Item('bag.jpg', 'images/bag.jpg');
+new Item('banana.jpg', 'images/banana.jpg');
+new Item('bathroom.jpg', 'images/bathroom.jpg');
+new Item('boots.jpg', 'images/boots.jpg');
+new Item('breakfast.jpg', 'images/breakfast.jpg');
+new Item('bubblegum.jpg', 'images/bubblegum.jpg');
+new Item('chair.jpg', 'images/chair.jpg');
+new Item('cthulhu.jpg', 'images/cthulhu.jpg');
+new Item('dog-duck.jpg', 'images/dog-duck.jpg');
+new Item('dragon.jpg', 'images/dragon.jpg');
+new Item('pen.jpg', 'images/pen.jpg');
+new Item('pet-sweep.jpg', 'images/pet-sweep.jpg');
+new Item('scissors.jpg', 'images/scissors.jpg');
+new Item('shark.jpg', 'images/shark.jpg');
+new Item('sweep.png', 'images/sweep.png');
+new Item('tauntaun.jpg', 'images/tauntaun.jpg');
+new Item('unicorn.jpg', 'images/unicorn.jpg');
+new Item('water-can.jpg', 'images/water-can.jpg');
+new Item('wine-glass.jpg', 'images/wine-glass.jpg');
+
+function renderImages() {
+  leftImageIndex = getRandomIndex();
+  middleImageIndex = getRandomIndex();
+  rightImageIndex = getRandomIndex();
+
+  while (leftImageIndex === rightImageIndex || leftImageIndex === middleImageIndex || rightImageIndex === middleImageIndex || shownBefore.includes(leftImageIndex) || shownBefore.includes(middleImageIndex) || shownBefore.includes(rightImageIndex)) {
+    leftImageIndex = getRandomIndex();
+    middleImageIndex = getRandomIndex();
+    rightImageIndex = getRandomIndex();
+  }
+
+  shownBefore = [leftImageIndex, rightImageIndex, middleImageIndex];
+
+  leftImage.src = Item.Items[leftImageIndex].src;
+  middleImage.src = Item.Items[middleImageIndex].src;
+  rightImage.src = Item.Items[rightImageIndex].src;
+  Item.Items[leftImageIndex].shown++;
+  Item.Items[middleImageIndex].shown++;
+  Item.Items[rightImageIndex].shown++;
+}
+
+renderImages();
+
+let photosDiv = document.getElementById('photos');
+photosDiv.addEventListener('click', userClick);
+
+function userClick(event) {
+  if (userAttempts < maxAttempts) {
+    if (event.target.id === 'left') {
+      Item.Items[leftImageIndex].clicked++;
+      userAttempts++;
+    } else if (event.target.id === 'right') {
+      userAttempts++;
+      Item.Items[rightImageIndex].clicked++;
+    } else if (event.target.id === 'middle') {
+      Item.Items[middleImageIndex].clicked++;
+      userAttempts++;
+    } else {
+      alert('Please click exactly on the image');
+    }
+    renderImages();
+  } else {
+    photosDiv.removeEventListener('click', userClick);
+    updateStorage();
+    for (let i = 0; i < Item.Items.length; i++) {
+      votesArr.push(Item.Items[i].clicked);
+      shownArr.push(Item.Items[i].shown);
+    }
+
+    displayResultButton.id = 'visible';
+    displayResultButton.addEventListener('click', results);
+    // btn.setAttribute('type', 'submit');
+    // btn.setAttribute('value', 'View Results');
+    // btn.id = 'done';
+
+    // remove event listener:
+    
+   
+  }
+ 
+  
+}
+
+let btn;
+
+function results() {
+  let list = document.getElementById('score-list');
+  for (let i = 0; i < Item.Items.length; i++) {
+    let listItem = document.createElement('li');
+    list.appendChild(listItem);
+    listItem.textContent = `${Item.Items[i].name} had ${Item.Items[i].clicked}  clicked,  and was seen ${Item.Items[i].shown} times`;
+  }
+  for (let i = 0; i < Item.Items.length; i++) {
+    votesArr.push(Item.Items[i].clicked);
+    shownArr.push(Item.Items[i].shown);
+  }
+ showChart();
 }
 
 function updateStorage() {
-  let data = localStorage.getItem('Items');
-  let parsedItemsArr = JSON.parse(data);
-  for (let i = 0; i < parsedItemsArr.length; i++) {
-    new Item(parsedItemsArr[i].name,parsedItemsArr[i].src,parsedItemsArr[i].id,parsedItemsArr[i].shown,parsedItemsArr[i].clicked);
+  let stringArr = JSON.stringify(Item.Items);
+  localStorage.setItem('clicked', stringArr);
+}
+function getStorage() {
+  let data = localStorage.getItem('clicked');
+  let parsedArr = JSON.parse(data);
+  if (parsedArr !== null) {
+    Item.Items=parsedArr;
   }
-  console.log(Items);
 }
-
-function getRandomIndex() {
-  return Math.floor(Math.random() * Items.length);
-}
-
-let shownPrevious = [];
-function renderPhotos() {
-    rightImageIndex = getRandomIndex();
-    middleImageIndex = getRandomIndex();
-    leftImageIndex = getRandomIndex();
-
-    while(middleImageIndex === rightImageIndex || leftImageIndex === rightImageIndex || leftImageIndex === middleImageIndex ||
-      shownPrevious.includes(rightImageIndex) || shownPrevious.includes(middleImageIndex) || shownPrevious.includes(leftImageIndex)) {
-        rightImageIndex = getRandomIndex();
-        middleImageIndex = getRandomIndex();
-        leftImageIndex = getRandomIndex();
-    }
-    shownPrevious = [rightImageIndex, middleImageIndex, leftImageIndex];
-
-  rightImage.src = Items[rightImageIndex].source;
-  Items[rightImageIndex].shown++;
-  middleImage.src = Items[middleImageIndex].source;
-  Items[middleImageIndex].shown++;
-  leftImage.src = Items[leftImageIndex].source;
-  Items[leftImageIndex].shown++;
-}
-renderPhotos(); 
-
-photosSection.addEventListener('click', handleClick);
-displayResultButton.addEventListener('click', showResults);
-
-// rightImage.addEventListener('click',handleClick);
-// middleImage.addEventListener('click', handleClick);
-// leftImage.addEventListener('click',handleClick);
-
-function showResults() {
-  let scoreList = document.getElementById('score-list');
-  for (let i = 0; i < Items.length; i++) {
-    let listItem = document.createElement('li');
-    scoreList.appendChild(listItem);
-    listItem.textContent=`${Items[i].name} has ${Items[i].clicked} votes and was shown ${Items[i].shown} times`
-  }
-  displayResultButton.removeEventListener('click', showResults);
-  displayResultButton.id = 'hidden';
-}
-let votesArr = [];
-let shownArr = [];
-
-function handleClick(e) {
-  if (userAttempts < maxAttempts) {
-    //increment user's attempts by 1 each time the user clicks an image
-    if(e.target.id === 'right') {
-      Items[rightImageIndex].clicked++;
-      renderPhotos();
-    } else if(e.target.id === 'middle') {
-      Items[middleImageIndex].clicked++;
-      renderPhotos();
-    } else if (e.target.id === 'left') {
-      Items[leftImageIndex].clicked++;
-      renderPhotos();
-    } else {
-      alert('please click on the images');
-      userAttempts--;
-    }
-  } else {
-    displayResultButton.id = 'visible';
-    for (let i = 0; i < Items.length; i++) {
-      votesArr.push(Items[i].clicked);
-      shownArr.push(Items[i].shown);
-    }
-    photos.removeEventListener('click', handleClick);
-    showChart();
-  }    
-  userAttempts++;
-}
+getStorage();
 
 function showChart() {
-
   const data = {
     labels: namesArr,
-    datasets: [{
+    datasets: [
+    {
       label: 'Votes',
       data: votesArr,
       backgroundColor: [
-        'rgba(255, 99, 132, 0.2)',
-        'rgba(255, 159, 64, 0.2)',
-        'rgba(255, 205, 86, 0.2)',
-        'rgba(75, 192, 192, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(153, 102, 255, 0.2)',
-        'rgba(201, 203, 207, 0.2)'
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(255, 159, 64, 0.7)',
+        'rgba(255, 205, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
+        'rgba(201, 203, 207, 0.7)',
       ],
       borderColor: [
         'rgb(255, 99, 132)',
@@ -156,21 +165,22 @@ function showChart() {
         'rgb(75, 192, 192)',
         'rgb(54, 162, 235)',
         'rgb(153, 102, 255)',
-        'rgb(201, 203, 207)'
+        'rgb(201, 203, 207)',
+
       ],
-      borderWidth: 1
+      borderWidth: 4
     },
     {
       label: 'Shown',
       data: shownArr,
       backgroundColor: [
-        'rgba(255, 99, 132, 0.2)',
-        'rgba(255, 159, 64, 0.2)',
-        'rgba(255, 205, 86, 0.2)',
-        'rgba(75, 192, 192, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(153, 102, 255, 0.2)',
-        'rgba(201, 203, 207, 0.2)'
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(255, 159, 64, 0.7)',
+        'rgba(255, 205, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
+        'rgba(201, 203, 207, 0.7)'
       ],
       borderColor: [
         'rgb(255, 99, 132)',
@@ -181,12 +191,10 @@ function showChart() {
         'rgb(153, 102, 255)',
         'rgb(201, 203, 207)'
       ],
-      borderWidth: 1
+      borderWidth: 4
     }
-  
-  ]
+    ]
   };
-
   const config = {
     type: 'bar',
     data: data,
@@ -198,11 +206,8 @@ function showChart() {
       }
     },
   };
-
-
-  var myChart = new Chart(
+  let myChart = new Chart(
     document.getElementById('myChart'),
     config
   );
-updateStorage();
 }
